@@ -9,6 +9,7 @@
  * - How to create and initialize a UsbMidi instance
  * - How to send MIDI CC messages
  * - Basic error handling with Result<void>
+ * - Using the OC_LOG_* API for debug output
  *
  * Hardware required:
  * - Teensy 4.1 (or 4.0)
@@ -17,17 +18,20 @@
  * Test it:
  * - Open a MIDI monitor (MIDI-OX, Pocket MIDI, etc.)
  * - You should see CC 1 incrementing every 100ms on channel 1
+ *
+ * NOTE: Enable -D OC_LOG in platformio.ini build_flags to see debug output.
+ *       Remove it for production (zero overhead, instant boot).
  */
 
-#include <Arduino.h>
+#include <oc/teensy/Teensy.hpp>
 #include <oc/teensy/UsbMidi.hpp>
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Configuration
+// Configuration - Adapt to your needs
 // ═══════════════════════════════════════════════════════════════════════════
 
-constexpr uint8_t MIDI_CHANNEL = 0;  // Channel 1 (0-indexed)
-constexpr uint8_t CC_NUMBER = 1;     // Modulation wheel
+constexpr uint8_t MIDI_CHANNEL = 0;       // Channel 1 (0-indexed)
+constexpr uint8_t CC_NUMBER = 1;          // Modulation wheel
 constexpr uint32_t SEND_INTERVAL_MS = 100;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -41,24 +45,14 @@ oc::teensy::UsbMidi midi;
 // ═══════════════════════════════════════════════════════════════════════════
 
 void setup() {
-    // Wait for serial (optional, for debug output)
-    Serial.begin(115200);
-    while (!Serial && millis() < 2000) {}
+    OC_LOG_INFO("Example 01: MIDI Output");
 
-    Serial.println("\n[Example 01] MIDI Output");
-    Serial.println("========================\n");
-
-    // Initialize MIDI
-    auto result = midi.init();
-    if (!result) {
-        Serial.printf("[ERROR] MIDI init failed: %s\n",
-                      oc::core::errorCodeToString(result.error().code));
-        while (true) { delay(1000); }
+    if (auto r = midi.init(); !r) {
+        OC_LOG_ERROR("MIDI: {}", oc::core::errorCodeToString(r.error().code));
+        while (true) {}
     }
 
-    Serial.println("[OK] MIDI initialized");
-    Serial.printf("Sending CC %d on channel %d every %dms\n\n",
-                  CC_NUMBER, MIDI_CHANNEL + 1, SEND_INTERVAL_MS);
+    OC_LOG_INFO("Ready - CC {} every {}ms", CC_NUMBER, SEND_INTERVAL_MS);
 }
 
 void loop() {
@@ -71,7 +65,7 @@ void loop() {
 
         // Send CC message
         midi.sendCC(MIDI_CHANNEL, CC_NUMBER, value);
-        Serial.printf("CC %d = %d\n", CC_NUMBER, value);
+        OC_LOG_DEBUG("CC {} = {}", CC_NUMBER, value);
 
         // Increment value (wraps at 127)
         value = (value + 1) % 128;

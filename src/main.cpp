@@ -23,8 +23,8 @@
  *       Remove it for production (zero overhead, instant boot).
  */
 
-#include <oc/teensy/Teensy.hpp>
-#include <oc/teensy/UsbMidi.hpp>
+#include <oc/hal/teensy/Teensy.hpp>
+#include <oc/hal/teensy/UsbMidi.hpp>
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Configuration - Adapt to your needs
@@ -38,7 +38,7 @@ constexpr uint32_t SEND_INTERVAL_MS = 100;
 // Global MIDI instance
 // ═══════════════════════════════════════════════════════════════════════════
 
-oc::teensy::UsbMidi midi;
+oc::hal::teensy::UsbMidi midi;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Arduino Entry Points

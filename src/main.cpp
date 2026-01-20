@@ -48,7 +48,7 @@ void setup() {
     OC_LOG_INFO("Example 01: MIDI Output");
 
     if (auto r = midi.init(); !r) {
-        OC_LOG_ERROR("MIDI: {}", oc::core::errorCodeToString(r.error().code));
+        OC_LOG_ERROR("MIDI: {}", oc::errorCodeToString(r.error().code));
         while (true) {}
     }
 
